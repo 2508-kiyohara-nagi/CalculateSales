@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class CalculateSales {
@@ -37,6 +39,24 @@ public class CalculateSales {
 		}
 
 		// ※ここから集計処理を作成してください。(処理内容2-1、2-2)
+		File[] files = new File(args[0]).listFiles();
+		
+		List<File> rcdFiles =new ArrayList<>();
+		//ファイルの数繰り返し処理
+		for (int i = 0;i < files.length ; i++) {
+			//files[i].getnName();//ファイル名取得
+			if(files[i].getName().matches("[0-9]{8}.rcd")){
+				rcdFiles.add(files[i]);
+				
+			}
+		}
+		//rcdファイルの数繰り返し処理
+		for (int i = 0;i< rcdFiles.size(); i++) {
+			//long fileSale = Long(branchSales[1]);
+			
+			//Long saleAmount = branchSales.get(key) + fileSale;
+			
+		}
 
 
 
@@ -61,6 +81,7 @@ public class CalculateSales {
 
 		try {
 			File file = new File(path, fileName);
+			//File file = new File("C:\\Users\\trainee1206\\Desktop\\売上集計課題\\branch.lst","branch.lst");
 			FileReader fr = new FileReader(file);
 			br = new BufferedReader(fr);
 
@@ -68,6 +89,11 @@ public class CalculateSales {
 			// 一行ずつ読み込む
 			while((line = br.readLine()) != null) {
 				// ※ここの読み込み処理を変更してください。(処理内容1-2)
+				String[] items = line.split(",");
+
+				//Mapに追加する２つの情報をputの引数として指定
+				branchNames.put(items[0], items[1]);
+				branchSales.put(items[0], 0L );
 				System.out.println(line);
 			}
 
