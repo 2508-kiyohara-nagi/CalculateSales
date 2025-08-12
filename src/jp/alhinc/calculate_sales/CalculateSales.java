@@ -38,7 +38,9 @@ public class CalculateSales {
 			return;
 		}
 
-		// ※ここから集計処理を作成してください。(処理内容2-1、2-2)
+		// ※ここから集計処理を作成してください。(処理内容2-1、2-2)		
+
+		
 		File[] files = new File(args[0]).listFiles();
 		
 		List<File> rcdFiles =new ArrayList<>();
@@ -50,21 +52,52 @@ public class CalculateSales {
 				
 			}
 		}
-		//rcdファイルの数繰り返し処理
+	
+		
+		// 売上ファイル読み込み処理
+
 		for (int i = 0;i< rcdFiles.size(); i++) {
-			//long fileSale = Long(branchSales[1]);
-			
-			//Long saleAmount = branchSales.get(key) + fileSale;
-			
+			BufferedReader br = null;
+	
+			try {
+				File file = new File(args[0], files[i].getName());
+				
+				FileReader fr = new FileReader(file);
+				br = new BufferedReader(fr);
+					String line;
+				//売上ファイル支店コード、売れ上げ金額のリスト
+				List<String> items = new ArrayList<>();
+				// 一行ずつ読みこむ
+				while((line = br.readLine()) != null) {
+					items.add(line);
+					
+				}
+				
+				long fileSale = Long.parseLong(items.get(1));
+				//読み込んだ売上金額を加算
+					
+				Long saleAmount = branchSales.get(items.get(0)) + fileSale;
+				//mapに加算した値を追加
+				branchSales.put( items.get(0),saleAmount);
+				
+	
+			} catch(IOException e) {
+				System.out.println(UNKNOWN_ERROR);
+				return ;//終了させるには
+			} finally {
+				// ファイルを開いている場合
+				if(br != null) {
+					try {
+						// ファイルを閉じる
+						br.close();
+					} catch(IOException e) {
+						System.out.println(UNKNOWN_ERROR);
+						return;
+					}
+				}
+			}
 		}
-
-
-
-		// 支店別集計ファイル書き込み処理
-		if(!writeFile(args[0], FILE_NAME_BRANCH_OUT, branchNames, branchSales)) {
-			return;
-		}
-
+		
 	}
 
 	/**
