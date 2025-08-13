@@ -1,8 +1,11 @@
 package jp.alhinc.calculate_sales;
 
 import java.io.BufferedReader;
+//追加パッケージ
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -97,7 +100,10 @@ public class CalculateSales {
 				}
 			}
 		}
-		
+		//3-1支店別集計ファイル書き込み
+		if(!writeFile(args[0], FILE_NAME_BRANCH_OUT , branchNames, branchSales)) {
+			return;
+		}
 	}
 
 	/**
@@ -159,8 +165,45 @@ public class CalculateSales {
 	 */
 	private static boolean writeFile(String path, String fileName, Map<String, String> branchNames, Map<String, Long> branchSales) {
 		// ※ここに書き込み処理を作成してください。(処理内容3-1)
+		BufferedWriter bw = null;
 
+		try {
+			File file = new File(path, fileName);
+			
+			//ファイルライターの変数fw
+			FileWriter fw = new FileWriter(file);
+
+			//バッファードライターの変数bw
+			bw = new BufferedWriter(fw);
+			
+
+
+			
+			// 一行ずつ書き込む支店コード、支店名、売上金額
+			for(String key : branchNames.keySet()) {
+				bw.write(key +","+branchNames.get(key)+","+branchSales.get(key));
+				bw.newLine(); 
+				
+
+			}
+
+
+		} catch(IOException e) {
+			System.out.println(UNKNOWN_ERROR);
+			return false;
+		} finally {
+			// ファイルを開いている場合
+			if(bw != null) {
+				try {
+					// ファイルを閉じる
+					bw.close();
+				} catch(IOException e) {
+					System.out.println(UNKNOWN_ERROR);
+					return false;
+				}
+			}
+		}
 		return true;
-	}
+		}
 
-}
+	}
