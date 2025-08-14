@@ -70,12 +70,11 @@ public class CalculateSales {
 		//売上ファイルのリストのソート
 		Collections.sort(rcdFiles);
 
-
 		//売上ファイルが連番になっている確認 繰り返し回数は売上ファイルのリストの数より１つ小さくなるのは次のファイルと比べるため少なくしないと最後の比較で別のエラーがでる。
-		for(int i = 0;i < rcdFiles.size() -1;i++) {
+		for(int i = 0; i < rcdFiles.size() - 1; i++) {
 			//比較する２つのファイルの先頭から数字の８文字を切り出しint型に
-			int former = Integer.parseInt(rcdFiles.get(i).getName().substring(0,8));
-			int latter = Integer.parseInt(rcdFiles.get(i + 1).getName().substring(0,8));
+			int former = Integer.parseInt(rcdFiles.get(i).getName().substring(0, 8));
+			int latter = Integer.parseInt(rcdFiles.get(i + 1).getName().substring(0, 8));
 
 			//2つのファイルの差が１でない場合エラー処理
 			if((latter - former) != 1) {
@@ -84,7 +83,7 @@ public class CalculateSales {
 			}
 		}
 		// 売上ファイル読み込み処理
-		for (int i = 0; i< rcdFiles.size(); i++) {
+		for (int i = 0; i < rcdFiles.size(); i++) {
 			BufferedReader br = null;
 
 			try {
@@ -93,8 +92,8 @@ public class CalculateSales {
 				FileReader fr = new FileReader(file);
 				br = new BufferedReader(fr);
 
-				//空文字で初期化
-					String line = "";
+				//空文字で初期化 無駄なインデントあり
+				String line = "";
 
 				//売上ファイル支店コード、売り上げ金額のリスト
 				List<String> items = new ArrayList<>();
@@ -242,18 +241,12 @@ public class CalculateSales {
 			//バッファードライターの変数bw
 			bw = new BufferedWriter(fw);
 
-
-
-
 			// 一行ずつ書き込む支店コード、支店名、売上金額
 			for(String key : branchNames.keySet()) {
 				bw.write(key + "," + branchNames.get(key) + "," + branchSales.get(key));
 				bw.newLine();
 
-
 			}
-
-
 		} catch(IOException e) {
 			System.out.println(UNKNOWN_ERROR);
 			return false;
