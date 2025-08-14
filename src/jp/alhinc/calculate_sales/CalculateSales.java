@@ -26,8 +26,10 @@ public class CalculateSales {
 	private static final String FILE_NOT_EXIST = "支店定義ファイルが存在しません";
 	private static final String FILE_INVALID_FORMAT = "支店定義ファイルのフォーマットが不正です";
 	//追加のエラーメッセージ
-	private static final String FILE_NOT_SerialNumber = "売上ファイル名が連番になっていません";
-	private static final String SalesAmount_Over_10Digits = "合計金額が10桁を超えました";
+	private static final String FILE_NOT_SERIAL_NUMBER = "売上ファイル名が連番になっていません";
+	private static final String SALES_AMOUNT_OVER_TEN_DIGITS = "合計金額が10桁を超えました";
+	private static final String SALES_FILE_INVALID_FORMAT = "のフォーマットが不正です";
+	private static final String SALES_FILE_INVALID_BRNCH_CODE = "の支店コードが不正です";
 
 	/**
 	 * メインメソッド
@@ -40,7 +42,7 @@ public class CalculateSales {
 			System.out.println(UNKNOWN_ERROR);
 			return;
 		}
-		
+
 		// 支店コードと支店名を保持するMap
 		Map<String, String> branchNames = new HashMap<>();
 
@@ -57,34 +59,32 @@ public class CalculateSales {
 		List<File> rcdFiles =new ArrayList<>();
 
 		//ファイルの数繰り返し処理 ファイルかディレクトリかの判定も　エラー処理３
-		for (int i = 0;i < files.length; i++) {
+		for (int i = 0; i < files.length; i++) {
 
 			//files[i].getnName();//ファイル名取得　この文字から始まる記号がいる　この文字で終わる　.は正規表現で別の意味
 			if(files[i].isFile() && files[i].getName().matches("^[0-9]{8}\\.rcd$")){
 				rcdFiles.add(files[i]);
 
-			}else if(!files[i].isFile()){
-				System.out.println(UNKNOWN_ERROR);
-				return;
 			}
-			//売上ファイルのリストのソート
-			Collections.sort(rcdFiles);
-			
-			//売上ファイルが連番になっている確認 繰り返し回数は売上ファイルのリストの数より１つ小さくなるのは次のファイルと比べるため少なくしないと最後の比較で別のエラーがでる。
-			for(int j = 0;j < rcdFiles.size() -1;j++) {
-				//比較する２つのファイルの先頭から数字の８文字を切り出しint型に
-				int former = Integer.parseInt(rcdFiles.get(j).getName().substring(0,8));
-				int latter = Integer.parseInt(rcdFiles.get(j + 1).getName().substring(0,8));
-				
-				//2つのファイルの差が１でない場合エラー処理
-				if((latter - former) != 1) {
-					System.out.println(FILE_NOT_SerialNumber);
-					return;
-				}
+		}
+		//売上ファイルのリストのソート
+		Collections.sort(rcdFiles);
+
+
+		//売上ファイルが連番になっている確認 繰り返し回数は売上ファイルのリストの数より１つ小さくなるのは次のファイルと比べるため少なくしないと最後の比較で別のエラーがでる。
+		for(int i = 0;i < rcdFiles.size() -1;i++) {
+			//比較する２つのファイルの先頭から数字の８文字を切り出しint型に
+			int former = Integer.parseInt(rcdFiles.get(i).getName().substring(0,8));
+			int latter = Integer.parseInt(rcdFiles.get(i + 1).getName().substring(0,8));
+
+			//2つのファイルの差が１でない場合エラー処理
+			if((latter - former) != 1) {
+				System.out.println(FILE_NOT_SERIAL_NUMBER);
+				return;
 			}
 		}
 		// 売上ファイル読み込み処理
-		for (int i = 0;i< rcdFiles.size(); i++) {
+		for (int i = 0; i< rcdFiles.size(); i++) {
 			BufferedReader br = null;
 
 			try {
@@ -106,12 +106,12 @@ public class CalculateSales {
 				}
 				//売上ファイルのフォーマットの確認
 				if(items.size() != 2) {
-					System.out.println("<" +  rcdFiles.get(i).getName() + ">のフォーマットが不正です");
+					System.out.println("<" +  rcdFiles.get(i).getName() + ">" + SALES_FILE_INVALID_FORMAT);
 					return;
 				}
 				//支店コードが定義ファイルにあるか確認
 				if (!branchNames.containsKey(items.get(0))) {
-					System.out.println("<" +  rcdFiles.get(i).getName() + ">の支店コードが不正です");
+					System.out.println("<" +  rcdFiles.get(i).getName() + ">" + SALES_FILE_INVALID_BRNCH_CODE );
 					return;
 				}
 				//売上金額が数字なのか確認売上金額Longに変換する前にエラー処理で確認
@@ -124,15 +124,15 @@ public class CalculateSales {
 
 				//読み込んだ売上金額を加算
 				Long saleAmount = branchSales.get(items.get(0)) + fileSale;
-				
+
 				//売上金額１０桁以上の確認
 				if(saleAmount >= 10000000000L) {
-					System.out.println(SalesAmount_Over_10Digits);
+					System.out.println(SALES_AMOUNT_OVER_TEN_DIGITS);
 					return;
 				}
 
 				//mapに加算した値を追加
-				branchSales.put( items.get(0), saleAmount);
+				branchSales.put(items.get(0), saleAmount);
 
 
 			} catch(IOException e) {
@@ -152,7 +152,7 @@ public class CalculateSales {
 			}
 		}
 		//3-1支店別集計ファイル書き込み
-		if(!writeFile(args[0], FILE_NAME_BRANCH_OUT , branchNames, branchSales)) {
+		if(!writeFile(args[0], FILE_NAME_BRANCH_OUT, branchNames, branchSales)) {
 			return;
 		}
 	}
@@ -171,12 +171,12 @@ public class CalculateSales {
 
 		try {
 			File file = new File(path, fileName);
-			 //支店定義ファイルが存在しない場合、コンソールにエラーメッセージを表⽰します。 
-			if(!file.exists()) { 
+			 //支店定義ファイルが存在しない場合、コンソールにエラーメッセージを表⽰します。
+			if(!file.exists()) {
 				System.out.println(FILE_NOT_EXIST);
 				return false;
-			   
-			} 
+
+			}
 			//File file = new File("C:\\Users\\trainee1206\\Desktop\\売上集計課題\\branch.lst","branch.lst");
 			FileReader fr = new FileReader(file);
 			br = new BufferedReader(fr);
@@ -188,9 +188,9 @@ public class CalculateSales {
 			while((line = br.readLine()) != null) {
 				// ※ここの読み込み処理を変更してください。(処理内容1-2)
 				String[] items = line.split(",");
-				
+
 				//支店定義ファイルのフォーマット確認
-				if((items.length != 2) || (!items[0].matches("^[0-9]{3}$"))){  
+				if((items.length != 2) || (!items[0].matches("^[0-9]{3}$"))){
 				    //支店定義ファイルの仕様が満たされていない場合エラメッセージ表示
 				    System.out.println(FILE_INVALID_FORMAT);
 				    return false;
