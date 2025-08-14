@@ -114,7 +114,7 @@ public class CalculateSales {
 					System.out.println("<" +  rcdFiles.get(i).getName() + ">の支店コードが不正です");
 					return;
 				}
-				//売上金額が数字なのか？売上金額Longに変換する前にエラー処理で確認
+				//売上金額が数字なのか確認売上金額Longに変換する前にエラー処理で確認
 				if(!items.get(1).matches("^[0-9]+$")) {
 					System.out.println(UNKNOWN_ERROR);
 					return;
