@@ -22,7 +22,7 @@ public class CalculateSales {
 	private static final String FILE_NAME_BRANCH_OUT = "branch.out";
 
 	//商品定義ファイル名
-	private static final String FilE_NAME_COMMODITY_LIST = "commodity.list";
+	private static final String FILE_NAME_COMMODITY_LIST = "commodity.list";
 
 	//商品定義集計ファイル名
 	private static final String FILE_NAME_COMMODITY_OUT = "commodity.out";
@@ -35,12 +35,6 @@ public class CalculateSales {
 	private static final String SALES_FILE_INVALID_BRNCH_CODE = "の支店コードが不正です";
 	//商品定義ファイルの追加エラーメッセージ;
 	private static final String COMMODITY_FILE_INVALID_COMMODITY_CODE = "の商品コードが不正です";
-	/** 変更エラーメッセージ
-	private static final String FILE_NOT_EXIST = "支店定義ファイルが存在しません";
-	private static final String COMMODITY_FILE_NOT_EXIST = "商品定義ファイルが存在しません"
-	private static final String FILE_INVALID_FORMAT = "支店定義ファイルのフォーマットが不正です";
-	private static final String COMMODITY_FILE_INVALID_FORMAT = "商品定義ファイルのフォーマットが不正です";
-	*/
 	private static final String FILE_NOT_EXIST = "が存在しません";
 	private static final String FILE_INVALID_FORMAT = "のフォーマットが不正です";
 
@@ -56,19 +50,19 @@ public class CalculateSales {
 			return;
 		}
 		//ファイル名　支店定義ファイル
-		String officeFileName = "支店定義ファイル";
+		String branchFileName = "支店定義ファイル";
 		//ファイル名　商品定義ファイル
 		String commodityFileName = "商品定義ファイル";
 		//支店コードの形式
-		String officeCode = "^[0-9]{3}$";
+		String branchCode = "^[0-9]{3}$";
 		//商品コードの形式
 		String commodityCode = "[0-9a-zA-Z]{8}$";
 
 		// 支店コードと支店名を保持するMap
-		Map<String, String> officeNames = new HashMap<>();
+		Map<String, String> branchNames = new HashMap<>();
 
 		// 支店コードと売上金額を保持するMap
-		Map<String, Long> officeSales = new HashMap<>();
+		Map<String, Long> branchSales = new HashMap<>();
 
 		//商品コードと商品名を保持するMap
 		Map<String, String> commodityNames = new HashMap<>();
@@ -77,12 +71,12 @@ public class CalculateSales {
 		Map<String, Long> commoditySales = new HashMap<>();
 
 		// 支店定義ファイル読み込み処理
-		if(!readFile(args[0], FILE_NAME_BRANCH_LST, officeFileName, officeCode, officeNames, officeSales)) {
+		if(!readFile(args[0], FILE_NAME_BRANCH_LST, branchFileName, branchCode, branchNames, branchSales)) {
 			return;
 		}
 
 		//商品定義ファイル読み込み処理
-		if(!readFile(args[0], FilE_NAME_COMMODITY_LIST, commodityFileName, commodityCode, commodityNames, commoditySales)) {
+		if(!readFile(args[0], FILE_NAME_COMMODITY_LIST, commodityFileName, commodityCode, commodityNames, commoditySales)) {
 			return;
 		}
 
@@ -141,7 +135,7 @@ public class CalculateSales {
 					return;
 				}
 				//支店コードが定義ファイルにあるか確認
-				if (!officeNames.containsKey(items.get(0))) {
+				if (!branchNames.containsKey(items.get(0))) {
 					System.out.println(rcdFiles.get(i).getName() + SALES_FILE_INVALID_BRNCH_CODE);
 					return;
 				}
@@ -160,7 +154,7 @@ public class CalculateSales {
 				long fileSale = Long.parseLong(items.get(2));
 
 				//読み込んだ売上金額を加算
-				Long saleAmount = officeSales.get(items.get(0)) + fileSale;
+				Long saleAmount = branchSales.get(items.get(0)) + fileSale;
 
 				//商品ごとに売上金額加算
 				Long commodityAmount = commoditySales.get(items.get(1)) + fileSale;
@@ -173,7 +167,7 @@ public class CalculateSales {
 				}
 
 				//mapに加算した値を追加
-				officeSales.put(items.get(0), saleAmount);
+				branchSales.put(items.get(0), saleAmount);
 
 				//mapに加算した値を追加
 				commoditySales.put(items.get(1), commodityAmount);
@@ -196,7 +190,7 @@ public class CalculateSales {
 			}
 		}
 		//3-1支店別集計ファイル書き込み
-		if(!writeFile(args[0], FILE_NAME_BRANCH_OUT, officeNames, officeSales)) {
+		if(!writeFile(args[0], FILE_NAME_BRANCH_OUT, branchNames, branchSales)) {
 			return;
 		}
 		//商品別集計ファイルの書き込み処理
@@ -276,7 +270,7 @@ public class CalculateSales {
 	 * @param 支店コードと売上金額を保持するMap
 	 * @return 書き込み可否
 	 */
-	private static boolean writeFile(String path, String fileName, Map<String, String> branchNames, Map<String, Long> branchSales) {
+	private static boolean writeFile(String path, String fileName, Map<String, String> eachNames, Map<String, Long> eachSales) {
 		// ※ここに書き込み処理を作成してください。(処理内容3-1)
 		BufferedWriter bw = null;
 
@@ -290,8 +284,8 @@ public class CalculateSales {
 			bw = new BufferedWriter(fw);
 
 			// 一行ずつ書き込む支店コード、支店名、売上金額
-			for(String key : branchNames.keySet()) {
-				bw.write(key + "," + branchNames.get(key) + "," + branchSales.get(key));
+			for(String key : eachNames.keySet()) {
+				bw.write(key + "," + eachNames.get(key) + "," + eachSales.get(key));
 				bw.newLine();
 
 			}
