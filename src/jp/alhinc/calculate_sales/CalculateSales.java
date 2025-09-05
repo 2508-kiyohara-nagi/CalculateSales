@@ -238,6 +238,7 @@ public class CalculateSales {
 				    return false;
 				}
 				//Mapに追加する２つの情報をputの引数として指定
+				System.out.println(line);
 				eachNames.put(items[0], items[1]);
 				eachSales.put(items[0], 0L);
 
